@@ -1,13 +1,13 @@
 import type { ComponentInternalInstance, Raw } from "vue";
 import type { Map, MapEventType, LngLat } from "maplibre-gl";
-import type { MglEvent } from "@/lib/types";
+import type { MglEvent, MapPrefixedEvent } from "@/lib/types";
 import { MapLayerEmits } from "./layer.lib";
 
-export type MapEventHandler<T extends keyof MapEventType> = (
-  e: MapEventType[T],
+export type MapEventHandler<T extends MapPrefixedEvent> = (
+  e: T,
 ) => void;
 
-export type MapEvent<T extends keyof MapEventType> = `map:${T}` | T;
+export type MapEvent<T extends keyof MapEventType> = `map:${T}` | `update:${string}`;
 
 // export type EventType = `map:${keyof MapEventType}`
 
@@ -68,65 +68,81 @@ export const MAP_EVENT_TYPES: Array<keyof MapEventType> = [
 // export type MapEventEmits<T extends keyof MapEventType = keyof MapEventType> = {
 //   [K in T as MapEvent<K>]: (event: MapEventType[T]) => true
 // }
-export type MapEventEmits<T extends keyof MapEventType = keyof MapEventType> = {
+export type MapEventEmits<T extends keyof MapEventType> = {
   [K in T as K extends `update:${string}` ? K : `map:${K}`]: (event: MapEventType[K]) => true
 };
 
-export const MapEventEmits: MapEventEmits = {
+export type PrefixedEvent<
+  Prefix extends string,
+  // EventTypeMap extends Record<string, any>
+> = {
+  // K will be 'error', 'load', etc.
+  // We ensure K is a string to use it in the template literal.
+  [K in keyof MapEventType as K extends string ? `${Prefix}:${K}` : never]:
+    (event: MapEventType[K]) => true;
+};
+
+// export const MEmits : PrefixedEventEmits<"map"> = {
+//   "map:boxzoomcancel": (event) => true,
+//   "map:boxzoomend": (event) => true
+// }
+
+// export const MapEventEmits: MapEventEmits<keyof MapEventType> = {
+export const MapEventEmits : PrefixedEvent<"map"> = {
     /* eslint-disable @typescript-eslint/no-unused-vars */
-    "map:error": (event: MapEventType["error"]) => true,
+    "map:error": (event) => true,
     // "map:error": (event: MapEventType["error"]) => true,
-    "map:load": (event: MapEventType["load"]) => true,
-    "map:idle": (event: MapEventType["remove"]) => true,
-    "map:remove": (event: MapEventType["remove"]) => true,
-    "map:render": (event: MapEventType["render"]) => true,
-    "map:resize": (event: MapEventType["resize"]) => true,
-    "map:webglcontextlost": (event: MapEventType["webglcontextlost"]) => true,
-    "map:webglcontextrestored": (event: MapEventType["webglcontextrestored"]) => true,
-    "map:dataloading": (event: MapEventType["dataloading"]) => true,
-    "map:data": (event: MapEventType["data"]) => true,
-    "map:tiledataloading": (event: MapEventType["tiledataloading"]) => true,
-    "map:sourcedataloading": (event: MapEventType["sourcedataloading"]) => true,
-    "map:styledataloading": (event: MapEventType["styledataloading"]) => true,
-    "map:sourcedata": (event: MapEventType["sourcedata"]) => true,
-    "map:styledata": (event: MapEventType["styledata"]) => true,
-    "map:styleimagemissing": (event: MapEventType["styleimagemissing"]) => true,
-    "map:dataabort": (event: MapEventType["dataabort"]) => true,
-    "map:sourcedataabort": (event: MapEventType["sourcedataabort"]) => true,
-    "map:boxzoomcancel": (event: MapEventType["boxzoomcancel"]) => true,
-    "map:boxzoomstart": (event: MapEventType["boxzoomstart"]) => true,
-    "map:boxzoomend": (event: MapEventType["boxzoomend"]) => true,
-    "map:touchcancel": (event: MapEventType["touchcancel"]) => true,
-    "map:touchmove": (event: MapEventType["touchmove"]) => true,
-    "map:touchend": (event: MapEventType["touchend"]) => true,
-    "map:touchstart": (event: MapEventType["touchstart"]) => true,
-    "map:click": (event: MapEventType["click"]) => true,
-    "map:contextmenu": (event: MapEventType["contextmenu"]) => true,
-    "map:dblclick": (event: MapEventType["dblclick"]) => true,
-    "map:mousemove": (event: MapEventType["mousemove"]) => true,
-    "map:mouseup": (event: MapEventType["mouseup"]) => true,
-    "map:mousedown": (event: MapEventType["mousedown"]) => true,
-    "map:mouseout": (event: MapEventType["mouseout"]) => true,
-    "map:mouseover": (event: MapEventType["mouseover"]) => true,
-    "map:movestart": (event: MapEventType["movestart"]) => true,
-    "map:move": (event: MapEventType["move"]) => true,
-    "map:moveend": (event: MapEventType["moveend"]) => true,
-    "map:zoomstart": (event: MapEventType["zoomstart"]) => true,
-    "map:zoom": (event: MapEventType["zoom"]) => true,
-    "map:zoomend": (event: MapEventType["zoomend"]) => true,
-    "map:rotatestart": (event: MapEventType["rotatestart"]) => true,
-    "map:rotate": (event: MapEventType["rotate"]) => true,
-    "map:rotateend": (event: MapEventType["rotateend"]) => true,
-    "map:dragstart": (event: MapEventType["dragstart"]) => true,
-    "map:drag": (event: MapEventType["drag"]) => true,
-    "map:dragend": (event: MapEventType["dragend"]) => true,
-    "map:pitchstart": (event: MapEventType["pitchstart"]) => true,
-    "map:pitch": (event: MapEventType["pitch"]) => true,
-    "map:pitchend": (event: MapEventType["pitchend"]) => true,
-    "map:wheel": (event: MapEventType["wheel"]) => true,
-    "map:terrain": (event: MapEventType["terrain"]) => true,
-    "map:cooperativegestureprevented": (event: MapEventType["cooperativegestureprevented"]) => true,
-    "map:projectiontransition": (event: MapEventType["projectiontransition"]) => true,
+    "map:load": (event) => true,
+    "map:idle": (event) => true,
+    "map:remove": (event) => true,
+    "map:render": (event) => true,
+    "map:resize": (event) => true,
+    "map:webglcontextlost": (event) => true,
+    "map:webglcontextrestored": (event) => true,
+    "map:dataloading": (event) => true,
+    "map:data": (event) => true,
+    "map:tiledataloading": (event) => true,
+    "map:sourcedataloading": (event) => true,
+    "map:styledataloading": (event) => true,
+    "map:sourcedata": (event) => true,
+    "map:styledata": (event) => true,
+    "map:styleimagemissing": (event) => true,
+    "map:dataabort": (event) => true,
+    "map:sourcedataabort": (event) => true,
+    "map:boxzoomcancel": (event) => true,
+    "map:boxzoomstart": (event) => true,
+    "map:boxzoomend": (event) => true,
+    "map:touchcancel": (event) => true,
+    "map:touchmove": (event) => true,
+    "map:touchend": (event) => true,
+    "map:touchstart": (event) => true,
+    "map:click": (event) => true,
+    "map:contextmenu": (event) => true,
+    "map:dblclick": (event) => true,
+    "map:mousemove": (event) => true,
+    "map:mouseup": (event) => true,
+    "map:mousedown": (event) => true,
+    "map:mouseout": (event) => true,
+    "map:mouseover": (event) => true,
+    "map:movestart": (event) => true,
+    "map:move": (event) => true,
+    "map:moveend": (event) => true,
+    "map:zoomstart": (event) => true,
+    "map:zoom": (event) => true,
+    "map:zoomend": (event) => true,
+    "map:rotatestart": (event) => true,
+    "map:rotate": (event) => true,
+    "map:rotateend": (event) => true,
+    "map:dragstart": (event) => true,
+    "map:drag": (event) => true,
+    "map:dragend": (event) => true,
+    "map:pitchstart": (event) => true,
+    "map:pitch": (event) => true,
+    "map:pitchend": (event) => true,
+    "map:wheel": (event) => true,
+    "map:terrain": (event) => true,
+    "map:cooperativegestureprevented": (event) => true,
+    "map:projectiontransition": (event) => true,
     /**
      * Center property updated
      */
@@ -145,17 +161,17 @@ export const MapEventEmits: MapEventEmits = {
     // "update:bearing": (value: number) => true,
   }
 
-export function createEventHandler<T extends keyof MapEventType>(
+export function createEventHandler<T extends keyof MapPrefixedEvent>(
   component: Raw<ComponentInternalInstance>,
   map: Map,
   ctx: {
-    emit: (event: MapEvent<T>, payload: MglEvent<T>) => void;
+    emit: (event: T, payload: MglEvent<MapPrefixedEvent>) => void;
   },
-  eventName: MapEvent<T>,
-): MapEventHandler<T> {
-  return (payload: MapEventType[T]) =>
+  eventName: T,
+): MapEventHandler<MapPrefixedEvent> {
+  return (payload: MapPrefixedEvent[T]) =>
     ctx.emit(eventName, {
-      type: payload.type,
+      type: payload,
       map,
       component,
       event: payload,

@@ -27,11 +27,24 @@ export const map = Symbol("map"),
     ShallowRef<Marker | undefined>
   >;
 
-export interface MglEvent<T extends keyof MapEventType> {
+export type PrefixedEvent<
+  Prefix extends string
+> = {
+  [K in keyof MapEventType as K extends string ? `${Prefix}:${K}` : never]:
+    (event: MapEventType[K] | any) => true;
+};
+
+export type MapPrefixedEvent = PrefixedEvent<"map">
+
+export type UpdatePrefixedEvent = PrefixedEvent<"update">
+
+export type MapUpdatePrefixedEvent = MapPrefixedEvent | UpdatePrefixedEvent
+
+export interface MglEvent<T extends MapPrefixedEvent> {
   type: string;
   component: Raw<ComponentInternalInstance>;
   map: Map;
-  event: MapEventType[T];
+  event: T;
 }
 
 export type SourceOptionProps = SourceSpecification & { sourceId: string };

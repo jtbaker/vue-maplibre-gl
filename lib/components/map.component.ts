@@ -31,6 +31,7 @@ import {
   componentIdSymbol,
   isInitializedSymbol,
   isLoadedSymbol,
+  MapPrefixedEvent,
   mapSymbol,
   sourceIdSymbol,
 } from "@/lib/types";
@@ -357,6 +358,7 @@ export default defineComponent({
   emits: MapEventEmits,
   slots: Object as SlotsType<{ default: unknown }>,
   setup(props, ctx) {
+    // ctx.emit("map:boxzoomcancel", new ErrorEvent("test", {}))
     const component = markRaw(getCurrentInstance()!),
       container = shallowRef<HTMLDivElement>(),
       map = shallowRef<MaplibreMap>(),
@@ -533,14 +535,15 @@ export default defineComponent({
       // map.value.on("rotateend", boundMapEvents.get("__rotateend")!);
 
       // bind events
-
-      // createEventHandler<"click">(component, map.value, ctx, "click")
+      // const clickEventSig: keyof MapPrefixedEvent = "map:error"
+      // let l: keyof MapPrefixedEvent["map:error"] = clickEventSig
+      // createEventHandler<MapPrefixedEvent>(component, map.value, ctx, "map:error")
       if (component.vnode.props) {
         for (const event of MAP_EVENT_TYPES) {
           if (component.vnode.props["onMap:" + event]) {
-            const eventName: MapEvent<typeof event> = `map:${event}`;
+            const eventName: keyof MapPrefixedEvent = `map:${event}`;
 
-            const handler = createEventHandler<typeof event>(
+            const handler = createEventHandler<MapPrefixedEvent>(
               component,
               map.value,
               // # @ts-ignore
