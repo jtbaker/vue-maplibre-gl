@@ -1,5 +1,5 @@
 {
-  "name": "@indoorequal/vue-maplibre-gl",
+  "name": "@jtbaker/vue-maplibre-gl",
   "version": "8.4.0",
   "description": "Vue 3 plugin for maplibre-gl",
   "keywords": [
@@ -14,10 +14,10 @@
     "maplibre-gl",
     "map"
   ],
-  "author": "François de Metz <francois@2metz.fr>",
+  "author": "Jason Baker <jason.th.baker@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/indoorequal/vue-maplibre-gl.git"
+    "url": "https://github.com/jtbaker/vue-maplibre-gl.git"
   },
   "license": "MIT",
   "type": "module",
@@ -43,7 +43,7 @@
   "devDependencies": {
     "@babel/types": "^7.23.9",
     "@eslint/js": "^9.1.1",
-    "@indoorequal/vue-maplibre-gl": "workspace:^",
+    "@jtbaker/vue-maplibre-gl": "workspace:^",
     "@maplibre/maplibre-gl-inspect": "^1.7.0",
     "@mdi/js": "^7.4.47",
     "@types/geojson": "^7946.0.14",

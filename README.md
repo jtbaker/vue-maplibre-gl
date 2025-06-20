@@ -1,4 +1,4 @@
-# @indoorequal/vue-maplibre-gl
+# @jtbaker/vue-maplibre-gl
 
 [![npm](https://img.shields.io/npm/v/@indoorequal/vue-maplibre-gl.svg?style=flat-square)](https://www.npmjs.com/package/@indoorequal/vue-maplibre-gl)
 [![npm](https://img.shields.io/npm/dm/@indoorequal/vue-maplibre-gl?style=flat-square)](https://www.npmjs.com/package/@indoorequal/vue-maplibre-gl)
